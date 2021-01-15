@@ -68,9 +68,9 @@
     var book = ePub("http://127.0.0.1:10002/tlbb/content.opf");
 
     var rendition = book.renderTo("viewer", {
-      width: "100%",
+      width: 300,
       height: 600,
-      // view: window.ePub.InlineView,
+      view: window.ePub.InlineView,
       // ignoreClass: 'annotator-hl',
       // manager: "continuous"
     });
@@ -135,6 +135,7 @@
     var highlights = document.getElementById('highlights');
 
     rendition.on("selected", function(cfiRange) {
+      if (1) return;
 
       book.getRange(cfiRange).then(function (range) {
         var text;
@@ -165,9 +166,7 @@
           li.appendChild(remove);
           highlights.appendChild(li);
         }
-
       })
-
     });
 
   </script>

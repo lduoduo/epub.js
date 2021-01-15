@@ -131,6 +131,8 @@ function request(url, type, withCredentials, headers) {
 					r = this.response;
 				}
 
+        // console.log('xhr', url, type, r);
+
 				deferred.resolve(r);
 			} else {
 

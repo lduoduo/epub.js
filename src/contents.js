@@ -22,11 +22,12 @@ const TEXT_NODE = 3;
 	* @param {number} sectionIndex Index in Spine of Conntent's Section
 	*/
 class Contents {
-	constructor(doc, content, cfiBase, sectionIndex) {
+	constructor(doc, contentParent, content, cfiBase, sectionIndex) {
 		// Blank Cfi for Parsing
 		this.epubcfi = new EpubCFI();
 
-		this.document = doc;
+    this.document = doc;
+    this.contentParent = contentParent;
 		this.documentElement =  this.document.documentElement;
 		this.content = content || this.document.body;
 		this.window = this.document.defaultView;
@@ -36,7 +37,10 @@ class Contents {
 			height: 0
 		};
 
-		this.sectionIndex = sectionIndex || 0;
+    this.sectionIndex = sectionIndex || 0;
+
+    // console.log('Contents cfiBase', cfiBase);
+
 		this.cfiBase = cfiBase || "";
 
 		this.epubReadingSystem("epub.js", EPUBJS_VERSION);
@@ -71,8 +75,6 @@ class Contents {
 		}
 
 		return parseInt(this.window.getComputedStyle(frame)["width"]);
-
-
 	}
 
 	/**
@@ -115,8 +117,6 @@ class Contents {
 		}
 
 		return parseInt(this.window.getComputedStyle(content)["width"]);
-
-
 	}
 
 	/**
@@ -137,7 +137,6 @@ class Contents {
 		}
 
 		return parseInt(this.window.getComputedStyle(content)["height"]);
-
 	}
 
 	/**
@@ -604,7 +603,7 @@ class Contents {
 		if(!this.document) return targetPos;
 
 		if(this.epubcfi.isCfiString(target)) {
-			let range = new EpubCFI(target).toRange(this.document, ignoreClass);
+			let range = new EpubCFI(target).toRange(this.contentParent, ignoreClass);
 
 			if(range) {
 				try {
@@ -786,7 +785,8 @@ class Contents {
 					propStr += prop[0] + ":" + prop[1] + (prop[2] ? " !important" : "") + ";\n";
 				}
 
-				// Insert CSS Rule
+        // Insert CSS Rule
+        console.log('selector', selector);
 				styleSheet.insertRule(selector + "{" + propStr + "}", styleSheet.cssRules.length);
 			}
 		} else {
@@ -860,7 +860,6 @@ class Contents {
 		if (content) {
 			content.classList.add(className);
 		}
-
 	}
 
 	/**
@@ -948,12 +947,13 @@ class Contents {
 	 * @private
 	 */
 	onSelectionChange(e){
+    // console.log('onSelectionChange', e);
 		if (this.selectionEndTimeout) {
 			clearTimeout(this.selectionEndTimeout);
 		}
 		this.selectionEndTimeout = setTimeout(function() {
 			var selection = this.window.getSelection();
-			this.triggerSelectedEvent(selection);
+			this.triggerSelectedEvent(selection, e);
 		}.bind(this), 250);
 	}
 
@@ -961,16 +961,21 @@ class Contents {
 	 * Emit event on text selection
 	 * @private
 	 */
-	triggerSelectedEvent(selection){
+	triggerSelectedEvent(selection, e){
 		var range, cfirange;
 
 		if (selection && selection.rangeCount > 0) {
 			range = selection.getRangeAt(0);
 			if(!range.collapsed) {
-				// cfirange = this.section.cfiFromRange(range);
-				cfirange = new EpubCFI(range, this.cfiBase).toString();
-				this.emit(EVENTS.CONTENTS.SELECTED, cfirange);
-				this.emit(EVENTS.CONTENTS.SELECTED_RANGE, range);
+        // cfirange = this.section.cfiFromRange(range);
+        console.log('triggerSelectedEvent this.cfiBase', this.cfiBase, e);
+
+        cfirange = new EpubCFI(range, this.cfiBase).toString();
+
+        console.log('triggerSelectedEvent cfirange', cfirange, e);
+
+				this.emit(EVENTS.CONTENTS.SELECTED, cfirange, e);
+				this.emit(EVENTS.CONTENTS.SELECTED_RANGE, range, e);
 			}
 		}
 	}
@@ -983,7 +988,7 @@ class Contents {
 	 */
 	range(_cfi, ignoreClass){
 		var cfi = new EpubCFI(_cfi);
-		return cfi.toRange(this.document, ignoreClass);
+		return cfi.toRange(this.contentParent, ignoreClass);
 	}
 
 	/**

@@ -18,7 +18,7 @@ import DisplayOptions from "./displayoptions";
 import { EPUBJS_VERSION, EVENTS } from "./utils/constants";
 
 const CONTAINER_PATH = "META-INF/container.xml";
-const IBOOKS_DISPLAY_OPTIONS_PATH = "META-INF/com.apple.ibooks.display-options.xml";
+const IBOOKS_DISPLAY_OPTIONS_PATH = "META-INF/display-options.xml";
 
 const INPUT_TYPE = {
 	BINARY: "binary",

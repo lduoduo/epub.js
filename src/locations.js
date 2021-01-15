@@ -79,7 +79,8 @@ class Locations {
 
 		return section.load(this.request)
 			.then(function(contents) {
-				var completed = new defer();
+        var completed = new defer();
+        // console.log('locations cfibase', section.cfiBase);
 				var locations = this.parse(contents, section.cfiBase);
 				this._locations = this._locations.concat(locations);
 

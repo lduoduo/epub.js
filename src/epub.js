@@ -6,6 +6,7 @@ import * as utils from "./utils/core";
 import { EPUBJS_VERSION } from "./utils/constants";
 
 import IframeView from "./managers/views/iframe";
+import InlineView from "./managers/views/inline";
 import DefaultViewManager from "./managers/default";
 import ContinuousViewManager from "./managers/continuous";
 
@@ -31,5 +32,6 @@ ePub.Rendition = Rendition;
 ePub.Contents = Contents;
 ePub.CFI = CFI;
 ePub.utils = utils;
+ePub.InlineView = InlineView;
 
 export default ePub;

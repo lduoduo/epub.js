@@ -76,7 +76,7 @@
 
     // Add a single script
     rendition.hooks.content.register(function(contents){
-     return contents.addScript("https://code.jquery.com/jquery-2.1.4.min.js")
+     return contents.addScript("/examples/jquery.min.js")
        .then(function(){
             // init code
        });
@@ -86,7 +86,7 @@
     rendition.hooks.content.register(function(contents){
 
         var loaded = Promise.all([
-            contents.addScript("https://code.jquery.com/jquery-2.1.4.min.js"),
+            contents.addScript("/examples/jquery.min.js"),
             contents.addStylesheet("http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.css")
         ]);
 

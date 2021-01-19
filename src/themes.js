@@ -20,7 +20,6 @@ class Themes {
 		this._injected = [];
 		this.rendition.hooks.content.register(this.inject.bind(this));
 		this.rendition.hooks.content.register(this.overrides.bind(this));
-
 	}
 
 	/**
@@ -84,8 +83,8 @@ class Themes {
 
 	/**
 	 * Register a theme by passing its css as string
-	 * @param {string} name 
-	 * @param {string} css 
+	 * @param {string} name
+	 * @param {string} css
 	 */
 	registerCss (name, css) {
 		this._themes[name] = { "serialized" : css };

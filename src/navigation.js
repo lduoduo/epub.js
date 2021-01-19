@@ -189,7 +189,7 @@ class Navigation {
 		}
 
 		let src = content.getAttribute("href") || "";
-		
+
 		if (!id) {
 			id = src;
 		}
@@ -239,6 +239,8 @@ class Navigation {
 		var i;
 		var list = [];
 		var item;
+
+    console.log('parseLandmarks', navHtml, navItems);
 
 		if(!navItems || length === 0) return list;
 

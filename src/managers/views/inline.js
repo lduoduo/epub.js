@@ -374,9 +374,9 @@ class InlineView {
     var loading = new defer();
     var loaded = loading.promise;
     var doc = parse(contents, "text/html");
-    var body = qs(doc, "body");
+    var html = qs(doc, "html");
 
-    this.viewBody.innerHTML = body.innerHTML;
+    this.viewBody.innerHTML = html.innerHTML;
 
     this.document = this.viewBody.ownerDocument;
     this.window = this.document.defaultView;

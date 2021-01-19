@@ -29,7 +29,7 @@ Get the minified code from the build folder:
 If using archived `.epub` files include JSZip:
 
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+<script src="https://static.zuifuli.com/libs/jszip.min.js"></script>
 ```
 
 Set up a element to render to:

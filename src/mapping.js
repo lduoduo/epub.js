@@ -35,7 +35,8 @@ class Mapping {
 	 * @param {number} end position to end at
 	 */
 	page(contents, cfiBase, start, end) {
-		var root = contents && contents.document ? contents.document.body : false;
+		// var root = contents && contents.document ? contents.document.body : false;
+		var root = contents.content;
 		var result;
 
 		if (!root) {

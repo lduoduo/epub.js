@@ -1,3 +1,6 @@
+import EventEmitter from "event-emitter";
+
+import { EVENTS } from "./utils/constants";
 import Url from "./utils/url";
 
 /**
@@ -244,6 +247,7 @@ class Themes {
 	 */
 	fontSize (size) {
 		this.override("font-size", size);
+    this.emit(EVENTS.CONTENTS.RESIZE, size);
 	}
 
 	/**
@@ -261,7 +265,9 @@ class Themes {
 		this._current = undefined;
 		this._injected = undefined;
 	}
-
 }
+
+//-- Enable binding events to Renderer
+EventEmitter(Themes.prototype);
 
 export default Themes;

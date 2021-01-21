@@ -43,9 +43,6 @@ class InlineView {
     this.displayed = false;
     this.rendered = false;
 
-    // this.width  = this.settings.width;
-    // this.height = this.settings.height;
-
     this.fixedWidth = 0;
     this.fixedHeight = 0;
 
@@ -178,14 +175,16 @@ class InlineView {
           this.addListeners();
 
           return new Promise((resolve, reject) => {
+            this.show();
+
             // Expand the iframe to the full size of the content
             this.expand();
-
-            this.show();
 
             if (this.settings.forceRight) {
               this.element.style.marginLeft = this.width() + "px";
             }
+
+            console.log("expanded resolve");
             resolve();
           });
         }.bind(this),
@@ -263,6 +262,8 @@ class InlineView {
 
     if (this.displayed && this.iframe) {
       // this.contents.layout();
+
+      console.log("lock expand");
       this.expand();
     }
   }
@@ -285,6 +286,7 @@ class InlineView {
     else if (this.settings.axis === "horizontal") {
       // Get the width of the text
       width = this.contents.textWidth();
+      console.log("计算宽度", width, this.contents);
 
       if (width % this.layout.pageWidth > 0) {
         width =
@@ -378,6 +380,14 @@ class InlineView {
 
     this.viewBody.innerHTML = html.innerHTML;
 
+    setTimeout(() => {
+      this.onLoad(event, loading);
+    }, 100);
+
+    return loaded;
+  }
+
+  onLoad(event, promise) {
     this.document = this.viewBody.ownerDocument;
     this.window = this.document.defaultView;
 
@@ -388,6 +398,10 @@ class InlineView {
       this.section.cfiBase,
       this.section.index
     );
+
+    this.contents.viewType = "inline";
+
+    this.rendering = false;
 
     this.rendering = false;
 
@@ -401,7 +415,8 @@ class InlineView {
       this.document.querySelector("head").appendChild(link);
     }
 
-    this.contents.on(EVENTS.CONTENTS.EXPAND, () => {
+    this.contents.on(EVENTS.CONTENTS.EXPAND, (e) => {
+      console.log('inline EVENTS.CONTENTS.EXPAND', e);
       if (this.displayed && this.iframe) {
         this.expand();
         if (this.contents) {
@@ -411,6 +426,7 @@ class InlineView {
     });
 
     this.contents.on(EVENTS.CONTENTS.RESIZE, (e) => {
+      console.log('inline EVENTS.CONTENTS.RESIZE', e);
       if (this.displayed && this.iframe) {
         this.expand();
         if (this.contents) {
@@ -419,9 +435,8 @@ class InlineView {
       }
     });
 
-    loading.resolve(this.contents);
-
-    return loaded;
+    console.log("load done");
+    promise.resolve(this.contents);
   }
 
   setLayout(layout) {
@@ -429,6 +444,8 @@ class InlineView {
 
     if (this.contents) {
       this.layout.format(this.contents);
+      console.log("setLayout expand");
+
       this.expand();
     }
   }
@@ -482,25 +499,30 @@ class InlineView {
   }
 
   show() {
-    setTimeout(() => {
-      this.element.style.visibility = "visible";
+    // const that = this;
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        this.element.style.visibility = "visible";
 
-      if (this.iframe) {
-        this.iframe.style.visibility = "visible";
+        if (this.iframe) {
+          this.iframe.style.visibility = "visible";
 
-        // Remind Safari to redraw the iframe
-        this.iframe.style.transform = "translateZ(0)";
-        this.iframe.offsetWidth;
-        this.iframe.style.transform = null;
-      }
+          // Remind Safari to redraw the iframe
+          this.iframe.style.transform = "translateZ(0)";
+          this.iframe.offsetWidth;
+          this.iframe.style.transform = null;
+        }
 
-      if (this.viewBody) {
-        this.viewBody.style.visibility = "visible";
-        this.viewBody.style.overflow = "visible";
-      }
+        if (this.viewBody) {
+          this.viewBody.style.visibility = "visible";
+          this.viewBody.style.overflow = "visible";
+        }
 
+        resolve();
+      }, 200);
+    }).then(() => {
       this.emit(EVENTS.VIEWS.SHOWN, this);
-    }, 200);
+    });
   }
 
   hide() {
@@ -828,6 +850,8 @@ class InlineView {
     // this.element.style.width = "0px";
   }
 }
+
+InlineView.type = "inline";
 
 EventEmitter(InlineView.prototype);
 

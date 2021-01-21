@@ -1,4 +1,5 @@
 import EventEmitter from "event-emitter";
+import debounce from "lodash/debounce";
 import { extend, defer, isFloat } from "./utils/core";
 import Hook from "./utils/hook";
 import EpubCFI from "./epubcfi";
@@ -94,11 +95,18 @@ class Rendition {
       this.book.spine.hooks.content.register(this.injectScript.bind(this));
     }
 
+    this.reportLocation = debounce(this.reportLocation.bind(this), 300);
+
     /**
      * @member {Themes} themes
      * @memberof Rendition
      */
     this.themes = new Themes(this);
+    this.themes.on(EVENTS.CONTENTS.RESIZE, (e) => {
+      this.manager.updateLayout();
+      this.reportLocation();
+      console.log('EVENTS.CONTENTS.RESIZE', e);
+    });
 
     /**
      * @member {Annotations} annotations
@@ -486,9 +494,12 @@ class Rendition {
       epubcfi
     );
 
+    console.log('onResized', size);
     if (this.location && this.location.start) {
       this.display(epubcfi || this.location.start.cfi);
     }
+
+    this.reportLocation();
   }
 
   /**
@@ -817,6 +828,8 @@ class Rendition {
     }
     let start = location[0];
     let end = location[location.length - 1];
+
+    console.log('located定位', start.totalPages);
 
     let located = {
       start: {

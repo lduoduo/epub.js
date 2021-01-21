@@ -814,6 +814,7 @@ class DefaultViewManager {
       );
 
       let totalPages = this.layout.count(width).pages;
+      console.log('计算总页数 width', width, totalPages);
       let startPage = Math.floor(start / this.layout.pageWidth);
       let pages = [];
       let endPage = Math.floor(end / this.layout.pageWidth);
@@ -836,6 +837,7 @@ class DefaultViewManager {
         pages.push(pg);
       }
 
+      console.log('总页数', totalPages);
       return {
         index,
         href,
@@ -910,10 +912,10 @@ class DefaultViewManager {
     }
 
     if (!this.settings.fullsize) {
-      if (x) this.animation(this.container, "scrollLeft", x * dir);
-      if (y) this.animation(this.container, "scrollTop", y);
-      // if (x) this.container.scrollLeft += x * dir;
-      // if (y) this.container.scrollTop += y;
+      // if (x) this.animation(this.container, "scrollLeft", x * dir);
+      // if (y) this.animation(this.container, "scrollTop", y);
+      if (x) this.container.scrollLeft += x * dir;
+      if (y) this.container.scrollTop += y;
     } else {
       window.scrollBy(x * dir, y * dir);
     }

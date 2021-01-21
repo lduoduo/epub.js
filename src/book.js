@@ -284,6 +284,7 @@ class Book {
 	 * @return {Promise}
 	 */
 	openEpub(data, encoding) {
+    console.log('openEpub', data, encoding);
 		return this.unarchive(data, encoding || this.settings.encoding)
 			.then(() => {
 				return this.openContainer(CONTAINER_PATH);
@@ -300,6 +301,7 @@ class Book {
 	 * @return {string} packagePath
 	 */
 	openContainer(url) {
+    console.log('openContainer', url);
 		return this.load(url)
 			.then((xml) => {
 				this.container = new Container(xml);
@@ -570,6 +572,8 @@ class Book {
 	 * @return {Rendition}
 	 */
 	renderTo(element, options) {
+    console.log('renderTo', element, options);
+
 		this.rendition = new Rendition(this, options);
 		this.rendition.attachTo(element);
 

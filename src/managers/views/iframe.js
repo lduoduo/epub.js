@@ -284,8 +284,6 @@ class IframeView {
     var height = this.lockedHeight;
     var columns;
 
-    var textWidth, textHeight;
-
     if (!this.iframe || this._expanding) return;
 
     this._expanding = true;
@@ -298,6 +296,7 @@ class IframeView {
     else if (this.settings.axis === "horizontal") {
       // Get the width of the text
       width = this.contents.textWidth();
+      console.log('计算宽度', width, this.contents);
 
       if (width % this.layout.pageWidth > 0) {
         width =
@@ -441,6 +440,8 @@ class IframeView {
       this.section.index
     );
 
+    this.contents.viewType = "iframe";
+
     this.rendering = false;
 
     var link = this.document.querySelector("link[rel='canonical']");
@@ -453,7 +454,8 @@ class IframeView {
       this.document.querySelector("head").appendChild(link);
     }
 
-    this.contents.on(EVENTS.CONTENTS.EXPAND, () => {
+    this.contents.on(EVENTS.CONTENTS.EXPAND, (e) => {
+      console.log('iframe EVENTS.CONTENTS.EXPAND', e);
       if (this.displayed && this.iframe) {
         this.expand();
         if (this.contents) {
@@ -463,6 +465,7 @@ class IframeView {
     });
 
     this.contents.on(EVENTS.CONTENTS.RESIZE, (e) => {
+      console.log('iframe EVENTS.CONTENTS.RESIZE', e);
       if (this.displayed && this.iframe) {
         this.expand();
         if (this.contents) {
@@ -621,7 +624,7 @@ class IframeView {
     }
 
     let m = new Highlight(range, className, data, attributes);
-    console.log('m', m);
+    console.log("m", m);
 
     let h = this.pane.addMark(m);
 
@@ -866,6 +869,8 @@ class IframeView {
     // this.element.style.width = "0px";
   }
 }
+
+IframeView.type = "iframe";
 
 EventEmitter(IframeView.prototype);
 

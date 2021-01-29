@@ -159,7 +159,7 @@ class Contents {
       width += border.width;
     }
 
-    console.log("textWidth", width, content);
+    // console.log("textWidth", width, content);
     return Math.round(width);
   }
 

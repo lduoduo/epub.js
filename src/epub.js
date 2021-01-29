@@ -2,13 +2,15 @@ import Book from "./book";
 import Rendition from "./rendition";
 import CFI from "./epubcfi";
 import Contents from "./contents";
+import Navigation from "./navigation";
+import Packaging from "./packaging";
 import * as utils from "./utils/core";
 import { EPUBJS_VERSION } from "./utils/constants";
 
-import IframeView from "./managers/views/iframe";
+// import IframeView from "./managers/views/iframe";
 import InlineView from "./managers/views/inline";
-import DefaultViewManager from "./managers/default";
-import ContinuousViewManager from "./managers/continuous";
+// import DefaultViewManager from "./managers/default";
+// import ContinuousViewManager from "./managers/continuous";
 
 /**
  * Creates a new Book
@@ -33,5 +35,7 @@ ePub.Contents = Contents;
 ePub.CFI = CFI;
 ePub.utils = utils;
 ePub.InlineView = InlineView;
+ePub.Navigation = Navigation;
+ePub.Packaging = Packaging;
 
 export default ePub;

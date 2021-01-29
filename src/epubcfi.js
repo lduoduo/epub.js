@@ -43,7 +43,7 @@ class EpubCFI {
     this.start = null;
     this.end = null;
 
-    // console.log("new EpubCFI", base);
+    console.log("new EpubCFI", cfiFrom, base);
 
     // Allow instantiation without the "new" keyword
     if (!(this instanceof EpubCFI)) {

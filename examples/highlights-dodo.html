@@ -137,6 +137,7 @@
     rendition.on("selected", function(cfiRange) {
       // if (1) return;
 
+      console.log('selected', cfiRange);
       book.getRange(cfiRange).then(function (range) {
         var text;
         var li = document.createElement('li');

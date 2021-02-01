@@ -107,12 +107,22 @@ export class Mark {
 }
 
 export class Highlight extends Mark {
-  constructor(range, className, data, attributes) {
+  constructor(range, className, data, attributes = {}) {
     super();
     this.range = range;
     this.className = className;
     this.data = data || {};
-    this.attributes = attributes || {};
+
+    this.attributes = {};
+    this.strokAttributes = {};
+
+    Object.keys(attributes).map((k) => {
+      if (/stroke/.test(k)) {
+        this.strokAttributes[k] = attributes[k];
+      } else {
+        this.attributes[k] = attributes[k];
+      }
+    });
   }
 
   bind(element, container) {
@@ -142,7 +152,7 @@ export class Highlight extends Mark {
       this.element.removeChild(this.element.firstChild);
     }
 
-    console.log("highlight this", this);
+    // console.log("highlight this", this);
 
     var docFrag = this.element.ownerDocument.createDocumentFragment();
     var filtered = this.filteredRanges();
@@ -179,6 +189,11 @@ export class Underline extends Highlight {
     var offset = this.element.getBoundingClientRect();
     var container = this.container.getBoundingClientRect();
 
+    const styles = Object.keys(this.strokAttributes).map((k) => ({
+      key: [k],
+      value: this.strokAttributes[k],
+    }));
+
     for (var i = 0, len = filtered.length; i < len; i++) {
       var r = filtered[i];
 
@@ -192,18 +207,15 @@ export class Underline extends Highlight {
       var line = svg.createElement("line");
       line.setAttribute("x1", r.left - offset.left + container.left);
       line.setAttribute("x2", r.left - offset.left + container.left + r.width);
-      line.setAttribute(
-        "y1",
-        r.top - offset.top + container.top + r.height - 1
-      );
-      line.setAttribute(
-        "y2",
-        r.top - offset.top + container.top + r.height - 1
-      );
+      line.setAttribute("y1", r.top - offset.top + container.top + r.height + 1);
+      line.setAttribute("y2", r.top - offset.top + container.top + r.height + 1);
 
-      line.setAttribute("stroke-width", 1);
-      line.setAttribute("stroke", "black"); //TODO: match text color?
       line.setAttribute("stroke-linecap", "square");
+      styles.map((d) => line.setAttribute(d.key, d.value));
+
+      // line.setAttribute("stroke-width", 1);
+      // line.setAttribute("stroke-dasharray", "5, 5"); //TODO: match text color?
+      // line.setAttribute("stroke", "#8C8C8C");
 
       docFrag.appendChild(rect);
 

@@ -56,6 +56,11 @@ class Annotations {
 
     let views = this.rendition.views();
 
+    // if (data.href) {
+    //   const view = views._views.find(d => d.section.href === data.href);
+    //   return annotation;
+    // }
+
     views.forEach((view) => {
       if (annotation.sectionIndex === view.index) {
         annotation.attach(view);
@@ -162,7 +167,13 @@ class Annotations {
       let annotations = this._annotationsBySectionIndex[sectionIndex];
       annotations.forEach((hash) => {
         let annotation = this._annotations[hash];
-        annotation.attach(view);
+
+        const { data = {} } = annotation;
+        if (!data.href) {
+          annotation.attach(view);
+        } else {
+          data.href === view.section.href && annotation.attach(view);
+        }
       });
     }
   }

@@ -427,11 +427,11 @@ class Contents {
     let height = this.textHeight();
 
     if (width != this._size.width || height != this._size.height) {
-      console.log(
-        "resizeCheck this._size.width width",
-        this._size.width,
-        width
-      );
+      // console.log(
+      //   "resizeCheck this._size.width width",
+      //   this._size.width,
+      //   width
+      // );
 
       this._size = {
         width: width,
@@ -439,7 +439,7 @@ class Contents {
       };
 
       this.onResize && this.onResize(this._size);
-      console.log('emit EVENTS.CONTENTS.RESIZE', this._size);
+      // console.log('emit EVENTS.CONTENTS.RESIZE', this._size);
       this.emit(EVENTS.CONTENTS.RESIZE, this._size);
     }
   }
@@ -449,7 +449,7 @@ class Contents {
    * @private
    */
   resizeListeners() {
-    var width, height;
+    // var width, height;
     // Test size again
     clearTimeout(this.expanding);
     console.log('resizeListeners');

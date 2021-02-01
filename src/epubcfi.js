@@ -43,7 +43,7 @@ class EpubCFI {
     this.start = null;
     this.end = null;
 
-    console.log("new EpubCFI", cfiFrom, base);
+    // console.log("new EpubCFI", cfiFrom, base);
 
     // Allow instantiation without the "new" keyword
     if (!(this instanceof EpubCFI)) {
@@ -351,10 +351,10 @@ class EpubCFI {
     var stepsA, stepsB;
     var terminalA, terminalB;
 
-    var rangeAStartSteps, rangeAEndSteps;
-    var rangeBEndSteps, rangeBEndSteps;
-    var rangeAStartTerminal, rangeAEndTerminal;
-    var rangeBStartTerminal, rangeBEndTerminal;
+    // var rangeAStartSteps, rangeAEndSteps;
+    // var rangeBEndSteps, rangeBEndSteps;
+    // var rangeAStartTerminal, rangeAEndTerminal;
+    // var rangeBStartTerminal, rangeBEndTerminal;
 
     if (typeof cfiOne === "string") {
       cfiOne = new EpubCFI(cfiOne);
@@ -455,11 +455,17 @@ class EpubCFI {
     if (!currentNode || !currentNode.parentNode) return false;
 
     if (
-      currentNode.lastChild &&
-      currentNode.lastChild.classList &&
-      currentNode.lastChild.classList.contains("epubjs-view-body")
+      currentNode.classList &&
+      currentNode.classList.contains("epubjs-view-body")
     )
       return false;
+
+    // if (
+    //   currentNode.lastChild &&
+    //   currentNode.lastChild.classList &&
+    //   currentNode.lastChild.classList.contains("epubjs-view-body")
+    // )
+    //   return false;
 
     return currentNode.parentNode.nodeType != DOCUMENT_NODE;
   }
@@ -885,6 +891,33 @@ class EpubCFI {
   }
 
   findNode(steps, _doc, ignoreClass) {
+    // var doc = _doc || document;
+    var container;
+    var xpath;
+
+    const doc = typeof _doc.evaluate != "undefined" ? _doc : document;
+    const div = _doc;
+
+    if (!ignoreClass && typeof doc.evaluate != "undefined") {
+      xpath = this.stepsToXpath(steps);
+      container = doc.evaluate(
+        xpath,
+        div,
+        null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE,
+        null
+      ).singleNodeValue;
+    } else if (ignoreClass) {
+      container = this.walkToNode(steps, div, ignoreClass);
+    } else {
+      container = this.walkToNode(steps, div);
+    }
+
+    return container;
+  }
+
+  // 保留原始方法，自己进行魔改
+  findNodebk(steps, _doc, ignoreClass) {
     var doc = _doc || document;
     var container;
     var xpath;
@@ -995,12 +1028,14 @@ class EpubCFI {
 
     if (startContainer) {
       try {
+        console.log('#####startContainer', startContainer, start, cfi);
         if (start.terminal.offset != null) {
           range.setStart(startContainer, start.terminal.offset);
         } else {
           range.setStart(startContainer, 0);
         }
       } catch (e) {
+        console.error('#####startContainer error', startContainer, start, cfi, e);
         missed = this.fixMiss(
           startSteps,
           start.terminal.offset,
@@ -1017,19 +1052,25 @@ class EpubCFI {
 
     if (endContainer) {
       try {
+        console.log('#####endContainer', endContainer, end, cfi);
         if (end.terminal.offset != null) {
           range.setEnd(endContainer, end.terminal.offset);
         } else {
           range.setEnd(endContainer, 0);
         }
       } catch (e) {
-        missed = this.fixMiss(
-          endSteps,
-          cfi.end.terminal.offset,
-          doc,
-          needsIgnoring ? ignoreClass : null
-        );
-        range.setEnd(missed.container, missed.offset);
+        console.error('#####endContainer error', endContainer, end, cfi, e);
+        try {
+          missed = this.fixMiss(
+            endSteps,
+            cfi.end.terminal.offset,
+            doc,
+            needsIgnoring ? ignoreClass : null
+          );
+          range.setEnd(missed.container, missed.offset);
+        } catch (d) {
+          console.warn(e);
+        }
       }
     }
 

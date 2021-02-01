@@ -56,6 +56,7 @@ class Locations {
 		return this.q.run().then(function() {
 			this.total = this._locations.length - 1;
 
+      // console.log('locations total', this.total, this._locations);
 			if (this._currentCfi) {
 				this.currentLocation = this._currentCfi;
 			}
@@ -412,7 +413,8 @@ class Locations {
 		} else {
 			this._locations = locations;
 		}
-		this.total = this._locations.length - 1;
+    this.total = this._locations.length - 1;
+    console.log('return this._locations;',  this._locations);
 		return this._locations;
 	}
 

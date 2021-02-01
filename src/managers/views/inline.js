@@ -184,7 +184,7 @@ class InlineView {
               this.element.style.marginLeft = this.width() + "px";
             }
 
-            console.log("expanded resolve");
+            // console.log("expanded resolve");
             resolve();
           });
         }.bind(this),
@@ -286,7 +286,7 @@ class InlineView {
     else if (this.settings.axis === "horizontal") {
       // Get the width of the text
       width = this.contents.textWidth();
-      console.log("计算宽度", width, this.contents);
+      // console.log("计算宽度", width, this.contents);
 
       if (width % this.layout.pageWidth > 0) {
         width =
@@ -378,7 +378,10 @@ class InlineView {
     var doc = parse(contents, "text/html");
     var html = qs(doc, "html");
 
-    this.viewBody.innerHTML = html.innerHTML;
+    const innerHTML = html.innerHTML
+      .replace(/head/g, "div")
+      .replace(/body/g, "div");
+    this.viewBody.innerHTML = innerHTML;
 
     setTimeout(() => {
       this.onLoad(event, loading);
@@ -416,7 +419,7 @@ class InlineView {
     }
 
     this.contents.on(EVENTS.CONTENTS.EXPAND, (e) => {
-      console.log('inline EVENTS.CONTENTS.EXPAND', e);
+      // console.log("inline EVENTS.CONTENTS.EXPAND", e);
       if (this.displayed && this.iframe) {
         this.expand();
         if (this.contents) {
@@ -426,7 +429,7 @@ class InlineView {
     });
 
     this.contents.on(EVENTS.CONTENTS.RESIZE, (e) => {
-      console.log('inline EVENTS.CONTENTS.RESIZE', e);
+      // console.log("inline EVENTS.CONTENTS.RESIZE", e);
       if (this.displayed && this.iframe) {
         this.expand();
         if (this.contents) {
@@ -435,7 +438,7 @@ class InlineView {
       }
     });
 
-    console.log("load done");
+    // console.log("load done");
     promise.resolve(this.contents);
   }
 
@@ -630,14 +633,9 @@ class InlineView {
     if (!this.contents) {
       return;
     }
-    const attributes = Object.assign(
-      {
-        stroke: "black",
-        "stroke-opacity": "0.3",
-        "mix-blend-mode": "multiply",
-      },
-      styles
-    );
+
+    const attributes = styles;
+
     let range = this.contents.range(cfiRange);
     let emitter = () => {
       this.emit(EVENTS.VIEWS.MARK_CLICKED, cfiRange, data);
@@ -662,7 +660,9 @@ class InlineView {
     h.element.addEventListener("click", emitter);
     h.element.addEventListener("touchstart", emitter);
 
+    console.log('underline cfiRange', data, cfiRange);
     if (cb) {
+      console.log('注册cfi点击事件 cfiRange', data, cfiRange, h.element);
       h.element.addEventListener("click", cb);
       h.element.addEventListener("touchstart", cb);
     }

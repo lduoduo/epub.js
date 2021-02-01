@@ -814,7 +814,7 @@ class DefaultViewManager {
       );
 
       let totalPages = this.layout.count(width).pages;
-      console.log('计算总页数 width', width, totalPages);
+      // console.log('计算总页数 width', width, totalPages);
       let startPage = Math.floor(start / this.layout.pageWidth);
       let pages = [];
       let endPage = Math.floor(end / this.layout.pageWidth);
@@ -837,7 +837,7 @@ class DefaultViewManager {
         pages.push(pg);
       }
 
-      console.log('总页数', totalPages);
+      // console.log('总页数', totalPages);
       return {
         index,
         href,

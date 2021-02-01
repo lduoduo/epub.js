@@ -296,7 +296,7 @@ class IframeView {
     else if (this.settings.axis === "horizontal") {
       // Get the width of the text
       width = this.contents.textWidth();
-      console.log('计算宽度', width, this.contents);
+      // console.log('计算宽度', width, this.contents);
 
       if (width % this.layout.pageWidth > 0) {
         width =
@@ -624,7 +624,7 @@ class IframeView {
     }
 
     let m = new Highlight(range, className, data, attributes);
-    console.log("m", m);
+    console.log("m", m, this);
 
     let h = this.pane.addMark(m);
 

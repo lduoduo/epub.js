@@ -105,7 +105,7 @@ class Rendition {
     this.themes.on(EVENTS.CONTENTS.RESIZE, (e) => {
       this.manager.updateLayout();
       this.reportLocation();
-      console.log('EVENTS.CONTENTS.RESIZE', e);
+      // console.log("EVENTS.CONTENTS.RESIZE", e);
     });
 
     /**
@@ -494,7 +494,7 @@ class Rendition {
       epubcfi
     );
 
-    console.log('onResized', size);
+    console.log("onResized", size);
     if (this.location && this.location.start) {
       this.display(epubcfi || this.location.start.cfi);
     }
@@ -749,7 +749,9 @@ class Rendition {
                     index: this.location.start.index,
                     href: this.location.start.href,
                     start: this.location.start.cfi,
+                    startText: this.location.start.text,
                     end: this.location.end.cfi,
+                    endText: this.location.end.text,
                     percentage: this.location.start.percentage,
                   });
 
@@ -780,7 +782,9 @@ class Rendition {
                 index: this.location.start.index,
                 href: this.location.start.href,
                 start: this.location.start.cfi,
+                startText: this.location.start.text,
                 end: this.location.end.cfi,
+                endText: this.location.end.text,
                 percentage: this.location.start.percentage,
               });
 
@@ -829,13 +833,14 @@ class Rendition {
     let start = location[0];
     let end = location[location.length - 1];
 
-    console.log('located定位', start.totalPages);
+    console.log("翻页 located定位", start.mapping, end.mapping);
 
     let located = {
       start: {
         index: start.index,
         href: start.href,
         cfi: start.mapping.start,
+        text: start.mapping.startNode,
         displayed: {
           page: start.pages[0] || 1,
           total: start.totalPages,
@@ -845,6 +850,7 @@ class Rendition {
         index: end.index,
         href: end.href,
         cfi: end.mapping.end,
+        text: end.mapping.endNode,
         displayed: {
           page: end.pages[end.pages.length - 1] || 1,
           total: end.totalPages,
@@ -855,6 +861,9 @@ class Rendition {
     let locationStart = this.book.locations.locationFromCfi(
       start.mapping.start
     );
+
+    // console.log("翻页 locationStart", locationStart, start.mapping.start);
+
     let locationEnd = this.book.locations.locationFromCfi(end.mapping.end);
 
     if (locationStart != null) {
@@ -862,7 +871,14 @@ class Rendition {
       located.start.percentage = this.book.locations.percentageFromLocation(
         locationStart
       );
+
+      // console.log(
+      //   "翻页 locationStart percentage",
+      //   located.start.percentage,
+      //   located.start
+      // );
     }
+
     if (locationEnd != null) {
       located.end.location = locationEnd;
       located.end.percentage = this.book.locations.percentageFromLocation(
@@ -1026,11 +1042,11 @@ class Rendition {
     let horizontalPadding =
       parseFloat(computed.paddingLeft) + parseFloat(computed.paddingRight);
 
-    console.log(
-      "contents.addStylesheetRules",
-      contents,
-      contents.content.className
-    );
+    // console.log(
+    //   "contents.addStylesheetRules",
+    //   contents,
+    //   contents.content.className
+    // );
 
     const prefix = contents.content.className
       ? `.${contents.content.className}`
@@ -1158,7 +1174,7 @@ class Rendition {
   underline(cfiRange, data = {}, ...params) {
     const { start: { displayed: { page = 1 } = {} } = {} } = this.location;
     const { layout: { pageWidth = 1 } = {} } = this.manager;
-    console.log("rendition underline", this);
+    // console.log("rendition underline", this);
 
     const d = Object.assign(data || {}, { offsetX: pageWidth * (page - 1) });
     this.annotations.underline(cfiRange, d, ...params);

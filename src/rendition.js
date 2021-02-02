@@ -102,10 +102,17 @@ class Rendition {
      * @memberof Rendition
      */
     this.themes = new Themes(this);
-    this.themes.on(EVENTS.CONTENTS.RESIZE, (e) => {
+    this.themes.on(EVENTS.THEME.SIZE_CHANGE, (e) => {
+      // console.log("THEME.SIZE_CHANGE", e);
       this.manager.updateLayout();
       this.reportLocation();
-      // console.log("EVENTS.CONTENTS.RESIZE", e);
+
+      const view = this.hideAllUnderLine();
+
+      if (!view) return;
+
+      // 重现标记
+      setTimeout(() => this.annotations.inject(view), 3000);
     });
 
     /**
@@ -290,22 +297,20 @@ class Rendition {
    * @return {Promise}
    */
   attachTo(element) {
-    return this.q.enqueue(
-      function () {
-        // Start rendering
-        this.manager.render(element, {
-          width: this.settings.width,
-          height: this.settings.height,
-        });
+    return this.q.enqueue(() => {
+      // Start rendering
+      this.manager.render(element, {
+        width: this.settings.width,
+        height: this.settings.height,
+      });
 
-        /**
-         * Emit that rendering has attached to an element
-         * @event attached
-         * @memberof Rendition
-         */
-        this.emit(EVENTS.RENDITION.ATTACHED);
-      }.bind(this)
-    );
+      /**
+       * Emit that rendering has attached to an element
+       * @event attached
+       * @memberof Rendition
+       */
+      this.emit(EVENTS.RENDITION.ATTACHED);
+    });
   }
 
   /**
@@ -333,11 +338,11 @@ class Rendition {
     if (!this.book) {
       return;
     }
-    var isCfiString = this.epubcfi.isCfiString(target);
+    // var isCfiString = this.epubcfi.isCfiString(target);
     var displaying = new defer();
     var displayed = displaying.promise;
     var section;
-    var moveTo;
+    // var moveTo;
 
     this.displaying = displaying;
 
@@ -381,51 +386,6 @@ class Rendition {
     return displayed;
   }
 
-  /*
-  render(view, show) {
-
-    // view.onLayout = this.layout.format.bind(this.layout);
-    view.create();
-
-    // Fit to size of the container, apply padding
-    this.manager.resizeView(view);
-
-    // Render Chain
-    return view.section.render(this.book.request)
-      .then(function(contents){
-        return view.load(contents);
-      }.bind(this))
-      .then(function(doc){
-        return this.hooks.content.trigger(view, this);
-      }.bind(this))
-      .then(function(){
-        this.layout.format(view.contents);
-        return this.hooks.layout.trigger(view, this);
-      }.bind(this))
-      .then(function(){
-        return view.display();
-      }.bind(this))
-      .then(function(){
-        return this.hooks.render.trigger(view, this);
-      }.bind(this))
-      .then(function(){
-        if(show !== false) {
-          this.q.enqueue(function(view){
-            view.show();
-          }, view);
-        }
-        // this.map = new Map(view, this.layout);
-        this.hooks.show.trigger(view, this);
-        this.trigger("rendered", view.section);
-
-      }.bind(this))
-      .catch(function(e){
-        this.trigger("loaderror", e);
-      }.bind(this));
-
-  }
-  */
-
   /**
    * Report what section has been displayed
    * @private
@@ -435,6 +395,8 @@ class Rendition {
     view.on(EVENTS.VIEWS.MARK_CLICKED, (cfiRange, data) =>
       this.triggerMarkEvent(cfiRange, data, view.contents)
     );
+
+    // console.log('afterDisplayed view', view);
 
     this.hooks.render.trigger(view, this).then(() => {
       if (view.contents) {
@@ -555,20 +517,9 @@ class Rendition {
   next() {
     // console.log("this.manager", this.manager, this.manager.next);
     return this.q
-      .enqueue((e) => {
-        this.manager.next(e);
-      })
-      .then((e) => {
-        this.reportLocation(e);
-      });
+      .enqueue((e) => this.manager.next(e))
+      .then((e) => this.reportLocation(e));
   }
-
-  // next() {
-  //   console.log('this.manager', this.manager, this.manager.next);
-  //   return this.q
-  //     .enqueue(this.manager.next.bind(this.manager))
-  //     .then(this.reportLocation.bind(this));
-  // }
 
   /**
    * Go to the previous "page" in the rendition
@@ -1168,7 +1119,7 @@ class Rendition {
     console.log("rendition highlight", this);
 
     const d = Object.assign(data || {}, { offsetX: pageWidth * (page - 1) });
-    this.annotations.highlight(cfiRange, d, ...params);
+    return this.annotations.highlight(cfiRange, d, ...params);
   }
 
   underline(cfiRange, data = {}, ...params) {
@@ -1177,7 +1128,7 @@ class Rendition {
     // console.log("rendition underline", this);
 
     const d = Object.assign(data || {}, { offsetX: pageWidth * (page - 1) });
-    this.annotations.underline(cfiRange, d, ...params);
+    return this.annotations.underline(cfiRange, d, ...params);
   }
 
   mark(cfiRange, data = {}, ...params) {
@@ -1193,6 +1144,17 @@ class Rendition {
     console.log("rendition remove", this);
 
     this.annotations.remove(...params);
+  }
+
+  hideAllUnderLine() {
+    const view = this.manager.views._views.find(
+      (d) => d.section.href === this.location.start.href
+    );
+    if (!view) return;
+
+    this.annotations.clear(view);
+
+    return view;
   }
 }
 

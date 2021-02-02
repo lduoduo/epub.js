@@ -16,8 +16,9 @@ class Annotations {
     this._annotations = {};
     this._annotationsBySectionIndex = {};
 
-    this.rendition.hooks.render.register(this.inject.bind(this));
-    this.rendition.hooks.unloaded.register(this.clear.bind(this));
+    // ZH: 下面两句注释掉, 自己外面控制
+    // this.rendition.hooks.render.register(this.inject.bind(this));
+    // this.rendition.hooks.unloaded.register(this.clear.bind(this));
   }
 
   /**
@@ -67,7 +68,7 @@ class Annotations {
       }
     });
 
-    return annotation;
+    return Promise.resolve(annotation);
   }
 
   /**
@@ -169,6 +170,9 @@ class Annotations {
         let annotation = this._annotations[hash];
 
         const { data = {} } = annotation;
+
+        console.log('inject 标记', data);
+
         if (!data.href) {
           annotation.attach(view);
         } else {
@@ -189,6 +193,8 @@ class Annotations {
       let annotations = this._annotationsBySectionIndex[sectionIndex];
       annotations.forEach((hash) => {
         let annotation = this._annotations[hash];
+
+        // console.log('clear 标记');
         annotation.detach(view);
       });
     }

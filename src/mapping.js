@@ -438,7 +438,7 @@ class Mapping {
     const start = new EpubCFI(startRange, cfiBase);
     const end = new EpubCFI(endRange, cfiBase);
 
-    console.log('rangePairToCfiPair', startRange.startContainer, endRange.endContainer);
+    // console.log('rangePairToCfiPair', startRange.startContainer, endRange.endContainer);
     return {
       startNode: startRange.startContainer,
       endNode: endRange.endContainer,

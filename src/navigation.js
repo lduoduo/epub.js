@@ -245,7 +245,7 @@ class Navigation {
     var list = [];
     var item;
 
-    console.log("parseLandmarks", navHtml, navItems);
+    // console.log("parseLandmarks", navHtml, navItems);
 
     if (!navItems || length === 0) return list;
 

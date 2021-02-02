@@ -439,7 +439,7 @@ class Contents {
       };
 
       this.onResize && this.onResize(this._size);
-      // console.log('emit EVENTS.CONTENTS.RESIZE', this._size);
+      // console.log('emit EVENTS.CONTENTS.RESIZE contents resizeCheck', this._size);
       this.emit(EVENTS.CONTENTS.RESIZE, this._size);
     }
   }
@@ -1122,7 +1122,8 @@ class Contents {
     // Fixes Safari column cut offs, but causes RTL issues
     // this.css("display", "inline-block");
 
-    this.css("overflow-y", "hidden");
+    // ZH 添加为了防止奇怪的白屏BUG
+    // this.css("overflow-y", "hidden");
     this.css("margin", "0", true);
 
     if (axis === "vertical") {

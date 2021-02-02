@@ -135,13 +135,9 @@ class InlineView {
 
     // Render Chain
     return this.sectionRender
+      .then((contents) => this.load(contents))
       .then(
-        function (contents) {
-          return this.load(contents);
-        }.bind(this)
-      )
-      .then(
-        function () {
+        () => {
           // find and report the writingMode axis
           let writingMode = this.contents.writingMode();
 
@@ -187,19 +183,15 @@ class InlineView {
             // console.log("expanded resolve");
             resolve();
           });
-        }.bind(this),
-        function (e) {
+        },
+        (e) => {
           this.emit(EVENTS.VIEWS.LOAD_ERROR, e);
           return new Promise((resolve, reject) => {
             reject(e);
           });
-        }.bind(this)
+        }
       )
-      .then(
-        function () {
-          this.emit(EVENTS.VIEWS.RENDERED, this.section);
-        }.bind(this)
-      );
+      .then(() => this.emit(EVENTS.VIEWS.RENDERED, this.section));
   }
 
   reset() {
@@ -221,6 +213,7 @@ class InlineView {
     var width = _width || this.settings.width;
     var height = _height || this.settings.height;
 
+    // console.log("inline size");
     if (this.layout.name === "pre-paginated") {
       this.lock("both", width, height);
     } else if (this.settings.axis === "horizontal") {
@@ -263,7 +256,7 @@ class InlineView {
     if (this.displayed && this.iframe) {
       // this.contents.layout();
 
-      console.log("lock expand");
+      // console.log("lock expand");
       this.expand();
     }
   }
@@ -447,7 +440,7 @@ class InlineView {
 
     if (this.contents) {
       this.layout.format(this.contents);
-      console.log("setLayout expand");
+      // console.log("setLayout expand");
 
       this.expand();
     }
@@ -483,14 +476,14 @@ class InlineView {
 
     if (!this.displayed) {
       this.render(request).then(
-        function () {
+        () => {
           this.emit(EVENTS.VIEWS.DISPLAYED, this);
           this.onDisplayed(this);
 
           this.displayed = true;
           displayed.resolve(this);
-        }.bind(this),
-        function (err) {
+        },
+        (err) => {
           displayed.reject(err, this);
         }
       );
@@ -607,7 +600,7 @@ class InlineView {
     }
 
     let m = new Highlight(range, className, data, attributes);
-    console.log("m this", m, this);
+    // console.log("m this", m, this);
 
     // 这里再非ifame渲染时，添加mark, range的getClientRects返回的是基于document的位置信息，所以翻页会有问题
     let h = this.pane.addMark(m);
@@ -660,9 +653,9 @@ class InlineView {
     h.element.addEventListener("click", emitter);
     h.element.addEventListener("touchstart", emitter);
 
-    console.log('underline cfiRange', data, cfiRange);
+    // console.log("underline cfiRange", data, cfiRange);
     if (cb) {
-      console.log('注册cfi点击事件 cfiRange', data, cfiRange, h.element);
+      console.log("注册cfi点击事件 cfiRange", data, cfiRange, h.element);
       h.element.addEventListener("click", cb);
       h.element.addEventListener("touchstart", cb);
     }
@@ -751,7 +744,6 @@ class InlineView {
         rect = rects[i];
         if (!left || rect.left < left) {
           left = rect.left;
-          // right = rect.right;
           right =
             Math.ceil(left / this.layout.props.pageWidth) *
               this.layout.props.pageWidth -
@@ -845,9 +837,6 @@ class InlineView {
       this._width = null;
       this._height = null;
     }
-
-    // this.element.style.height = "0px";
-    // this.element.style.width = "0px";
   }
 }
 

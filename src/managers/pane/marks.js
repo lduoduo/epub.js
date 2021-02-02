@@ -217,6 +217,8 @@ export class Underline extends Highlight {
       // line.setAttribute("stroke-dasharray", "5, 5"); //TODO: match text color?
       // line.setAttribute("stroke", "#8C8C8C");
 
+      // line.onclick = e => alert(1);
+
       docFrag.appendChild(rect);
 
       docFrag.appendChild(line);

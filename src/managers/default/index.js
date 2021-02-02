@@ -1,4 +1,5 @@
 import EventEmitter from "event-emitter";
+import debounce from "lodash/debounce";
 import { extend, defer, windowBounds, isNumber } from "../../utils/core";
 import scrollType from "../../utils/scrolltype";
 import Mapping from "../../mapping";
@@ -44,6 +45,8 @@ class DefaultViewManager {
     };
 
     this.rendered = false;
+
+    // this.updateLayout = debounce(this.updateLayout.bind(this), 300);
   }
 
   render(element, size) {
@@ -384,6 +387,7 @@ class DefaultViewManager {
       this.updateWritingMode(mode);
     });
 
+    // console.log("add display");
     return view.display(this.request);
   }
 
@@ -402,6 +406,7 @@ class DefaultViewManager {
       this.updateWritingMode(mode);
     });
 
+    console.log("append display");
     return view.display(this.request);
   }
 
@@ -425,10 +430,13 @@ class DefaultViewManager {
       this.updateWritingMode(mode);
     });
 
+    console.log("prepend display");
     return view.display(this.request);
   }
 
   counter(bounds) {
+    console.log("manager counter bounds", bounds);
+
     if (this.settings.axis === "vertical") {
       this.scrollBy(0, bounds.heightDelta, true);
     } else {
@@ -443,7 +451,6 @@ class DefaultViewManager {
   // 	} else {
   // 		view.lock("width", this.bounds.width, this.bounds.height);
   // 	}
-  //
   // };
 
   next() {
@@ -523,9 +530,7 @@ class DefaultViewManager {
 
       return this.append(next, forceRight)
         .then(
-          function () {
-            return this.handleNextPrePaginated(forceRight, next, this.append);
-          }.bind(this),
+          () => this.handleNextPrePaginated(forceRight, next, this.append),
           (err) => {
             return err;
           }
@@ -620,7 +625,7 @@ class DefaultViewManager {
 
       return this.prepend(prev, forceRight)
         .then(
-          function () {
+          () => {
             var left;
             if (
               this.layout.name === "pre-paginated" &&
@@ -631,35 +636,33 @@ class DefaultViewManager {
                 return this.prepend(left);
               }
             }
-          }.bind(this),
+          },
           (err) => {
             return err;
           }
         )
-        .then(
-          function () {
-            if (this.isPaginated && this.settings.axis === "horizontal") {
-              if (this.settings.direction === "rtl") {
-                if (this.settings.rtlScrollType === "default") {
-                  this.scrollTo(0, 0, true);
-                } else {
-                  this.scrollTo(
-                    this.container.scrollWidth * -1 + this.layout.delta,
-                    0,
-                    true
-                  );
-                }
+        .then(() => {
+          if (this.isPaginated && this.settings.axis === "horizontal") {
+            if (this.settings.direction === "rtl") {
+              if (this.settings.rtlScrollType === "default") {
+                this.scrollTo(0, 0, true);
               } else {
                 this.scrollTo(
-                  this.container.scrollWidth - this.layout.delta,
+                  this.container.scrollWidth * -1 + this.layout.delta,
                   0,
                   true
                 );
               }
+            } else {
+              this.scrollTo(
+                this.container.scrollWidth - this.layout.delta,
+                0,
+                true
+              );
             }
-            this.views.show();
-          }.bind(this)
-        );
+          }
+          this.views.show();
+        });
     }
   }
 
@@ -896,9 +899,9 @@ class DefaultViewManager {
     const that = this;
 
     window.requestAnimationFrame(function () {
-      const t = StepLimit > Math.abs(n) ? n : (n > 0 ? StepLimit : -StepLimit);
+      const t = StepLimit > Math.abs(n) ? n : n > 0 ? StepLimit : -StepLimit;
       el[direction] += t;
-      if(StepLimit > Math.abs(n)) return;
+      if (StepLimit > Math.abs(n)) return;
 
       that.animation(el, direction, n > 0 ? n - StepLimit : n + StepLimit);
     });
@@ -912,13 +915,19 @@ class DefaultViewManager {
     }
 
     if (!this.settings.fullsize) {
-      // if (x) this.animation(this.container, "scrollLeft", x * dir);
-      // if (y) this.animation(this.container, "scrollTop", y);
-      if (x) this.container.scrollLeft += x * dir;
-      if (y) this.container.scrollTop += y;
+      this.container.title = `x: ${this.container.scrollLeft + x * dir}`;
+      console.log("触发前后移动", x * dir);
+      if (Math.abs(x * dir) <= this.settings.offset) {
+        if (x) this.animation(this.container, "scrollLeft", x * dir);
+        if (y) this.animation(this.container, "scrollTop", y);
+      } else {
+        if (x) this.container.scrollLeft += x * dir;
+        if (y) this.container.scrollTop += y;
+      }
     } else {
       window.scrollBy(x * dir, y * dir);
     }
+
     this.scrolled = true;
   }
 
@@ -988,21 +997,35 @@ class DefaultViewManager {
       this.views.length > 0 &&
       this.layout.name === "pre-paginated"
     ) {
+      console.log("applayLayout", layout);
       this.display(this.views.first().section);
     }
     // this.manager.layout(this.layout.format);
   }
 
   updateLayout() {
-    if (!this.stage) {
-      return;
-    }
+    if (!this.stage) return;
+
+    // console.log("updateLayout");
 
     this._stageSize = this.stage.size();
 
     if (!this.isPaginated) {
+      // console.log(
+      //   "updateLayout1",
+      //   this._stageSize.width,
+      //   this._stageSize.height
+      // );
+
       this.layout.calculate(this._stageSize.width, this._stageSize.height);
     } else {
+      // console.log(
+      //   "updateLayout2",
+      //   this._stageSize.width,
+      //   this._stageSize.height,
+      //   this.settings.gap
+      // );
+
       this.layout.calculate(
         this._stageSize.width,
         this._stageSize.height,
@@ -1019,6 +1042,7 @@ class DefaultViewManager {
     this.viewSettings.width = this.layout.width;
     this.viewSettings.height = this.layout.height;
 
+    // console.log("updateLayout setLayout", this.layout);
     this.setLayout(this.layout);
   }
 

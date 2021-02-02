@@ -566,11 +566,7 @@ class ContinuousViewManager extends DefaultViewManager {
       this.scrollBy(0, this.layout.height, true);
     }
 
-    this.q.enqueue(
-      function () {
-        return this.check();
-      }.bind(this)
-    );
+    this.q.enqueue(() => this.check());
   }
 
   prev() {
@@ -587,11 +583,7 @@ class ContinuousViewManager extends DefaultViewManager {
       this.scrollBy(0, -this.layout.height, true);
     }
 
-    this.q.enqueue(
-      function () {
-        return this.check();
-      }.bind(this)
-    );
+    this.q.enqueue(() => this.check());
   }
 
   updateFlow(flow) {

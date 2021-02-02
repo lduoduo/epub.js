@@ -247,7 +247,7 @@ class Themes {
 	 */
 	fontSize (size) {
 		this.override("font-size", size);
-    this.emit(EVENTS.CONTENTS.RESIZE, size);
+    this.emit(EVENTS.THEME.SIZE_CHANGE, size);
 	}
 
 	/**

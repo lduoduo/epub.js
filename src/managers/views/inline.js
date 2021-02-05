@@ -630,7 +630,10 @@ class InlineView {
     const attributes = styles;
 
     let range = this.contents.range(cfiRange);
-    let emitter = () => {
+    let emitter = (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      console.log('emitter', e);
       this.emit(EVENTS.VIEWS.MARK_CLICKED, cfiRange, data);
     };
 
@@ -650,13 +653,13 @@ class InlineView {
     };
 
     h.element.setAttribute("ref", className);
-    h.element.addEventListener("click", emitter);
+    // h.element.addEventListener("click", emitter);
     h.element.addEventListener("touchstart", emitter);
 
     // console.log("underline cfiRange", data, cfiRange);
     if (cb) {
       console.log("注册cfi点击事件 cfiRange", data, cfiRange, h.element);
-      h.element.addEventListener("click", cb);
+      // h.element.addEventListener("click", cb);
       h.element.addEventListener("touchstart", cb);
     }
     return h;

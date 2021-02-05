@@ -390,7 +390,8 @@ class Contents {
     // this.transitionListeners();
 
     if (typeof ResizeObserver === "undefined") {
-      this.resizeListeners();
+      console.log('resizeListeners ResizeObserver');
+      // this.resizeListeners();
       this.visibilityListeners();
     } else {
       this.resizeObservers();
@@ -465,6 +466,7 @@ class Contents {
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible" && this.active === false) {
         this.active = true;
+        console.log('visibilityListeners resizeListeners');
         this.resizeListeners();
       } else {
         this.active = false;

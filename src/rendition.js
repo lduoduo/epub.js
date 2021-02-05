@@ -1147,6 +1147,8 @@ class Rendition {
   }
 
   hideAllUnderLine() {
+    if (!this.manager.views._views.length) return;
+
     const view = this.manager.views._views.find(
       (d) => d.section.href === this.location.start.href
     );
@@ -1155,6 +1157,14 @@ class Rendition {
     this.annotations.clear(view);
 
     return view;
+  }
+
+  showAllUnderLine() {
+    const view = this.hideAllUnderLine();
+
+    if (!view) return;
+    // 重现标记
+    setTimeout(() => this.annotations.inject(view), 3000);
   }
 }
 

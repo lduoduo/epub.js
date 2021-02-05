@@ -1028,7 +1028,7 @@ class EpubCFI {
 
     if (startContainer) {
       try {
-        console.log('#####startContainer', startContainer, start, cfi);
+        console.log('#####startContainer', startContainer.nodeValue.slice(0, 10), start, cfi);
         if (start.terminal.offset != null) {
           range.setStart(startContainer, start.terminal.offset);
         } else {
@@ -1052,7 +1052,7 @@ class EpubCFI {
 
     if (endContainer) {
       try {
-        console.log('#####endContainer', endContainer, end, cfi);
+        // console.log('#####endContainer', endContainer, end, cfi);
         if (end.terminal.offset != null) {
           range.setEnd(endContainer, end.terminal.offset);
         } else {

@@ -35,7 +35,7 @@ class Annotations {
     let hash = encodeURI(cfiRange + type);
     let cfi = new EpubCFI(cfiRange);
     let sectionIndex = cfi.spinePos;
-    console.log("add cfi", cfi);
+    // console.log("add cfi", cfi);
 
     let annotation = new Annotation({
       type,

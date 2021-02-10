@@ -35,7 +35,11 @@ class Annotations {
     let hash = encodeURI(cfiRange + type);
     let cfi = new EpubCFI(cfiRange);
     let sectionIndex = cfi.spinePos;
-    // console.log("add cfi", cfi);
+    let annotations = this._annotationsBySectionIndex[sectionIndex];
+
+    if (annotations && annotations.includes(hash)) return Promise.resolve();
+
+    console.log("add 标记", cfi, annotations);
 
     let annotation = new Annotation({
       type,
@@ -166,12 +170,14 @@ class Annotations {
     let sectionIndex = view.index;
     if (sectionIndex in this._annotationsBySectionIndex) {
       let annotations = this._annotationsBySectionIndex[sectionIndex];
+
+      console.log('inject', annotations);
+
       annotations.forEach((hash) => {
         let annotation = this._annotations[hash];
-
         const { data = {} } = annotation;
 
-        console.log('inject 标记', data);
+        console.log("inject 标记", data.href, data.epubcfi);
 
         if (!data.href) {
           annotation.attach(view);

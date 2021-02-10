@@ -583,8 +583,13 @@ class InlineView {
     if (!this.contents) {
       return;
     }
+
     const attributes = Object.assign(
-      { fill: "yellow", "fill-opacity": "0.3", "mix-blend-mode": "multiply" },
+      {
+        fill: styles.color || "yellow",
+        "fill-opacity": "0.2",
+        "mix-blend-mode": "multiply",
+      },
       styles
     );
     let range = this.contents.range(cfiRange);
@@ -615,10 +620,10 @@ class InlineView {
     h.element.addEventListener("click", emitter);
     h.element.addEventListener("touchstart", emitter);
 
-    if (cb) {
-      h.element.addEventListener("click", cb);
-      h.element.addEventListener("touchstart", cb);
-    }
+    // if (cb) {
+    //   h.element.addEventListener("click", cb);
+    //   h.element.addEventListener("touchstart", cb);
+    // }
     return h;
   }
 
@@ -627,13 +632,19 @@ class InlineView {
       return;
     }
 
+    // 检查是否已经有了，
+    if (this.pane && this.pane.marks) {
+      const h = this.pane.marks.find((d) => d.data.epubcfi === cfiRange);
+      if (h) return h;
+    }
+
     const attributes = styles;
 
     let range = this.contents.range(cfiRange);
     let emitter = (e) => {
       e.stopPropagation();
-      e.preventDefault();
-      console.log('emitter', e);
+      // e.preventDefault();
+      console.log("emitter", e);
       this.emit(EVENTS.VIEWS.MARK_CLICKED, cfiRange, data);
     };
 

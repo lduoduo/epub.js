@@ -28,6 +28,7 @@ export class Pane {
 
     this.marks.push(mark);
 
+    console.log('addMark', mark.data.epubcfi);
     mark.render();
     return mark;
   }
@@ -152,8 +153,6 @@ export class Highlight extends Mark {
       this.element.removeChild(this.element.firstChild);
     }
 
-    // console.log("highlight this", this);
-
     var docFrag = this.element.ownerDocument.createDocumentFragment();
     var filtered = this.filteredRanges();
     var offset = this.element.getBoundingClientRect();
@@ -194,30 +193,35 @@ export class Underline extends Highlight {
       value: this.strokAttributes[k],
     }));
 
+
+    // console.log("marks render", filtered);
+
     for (var i = 0, len = filtered.length; i < len; i++) {
       var r = filtered[i];
 
       var rect = svg.createElement("rect");
-      rect.setAttribute("x", r.left - offset.left + container.left);
+
+      // console.log('rect left offsetleft containerleft', r.left, offset.left, container.left, r, offset, container);
+
+      const constainerLeft = container.left < 0 ? 0: container.left;
+      // const offsetLeft = container.left < 0 ? Math.abs(offset.left) : offset.left;
+
+      console.log('rect x, y', r.left - offset.left + constainerLeft, r.top - offset.top + container.top);
+
+      rect.setAttribute("x", r.left - offset.left + constainerLeft);
       rect.setAttribute("y", r.top - offset.top + container.top);
       rect.setAttribute("height", r.height);
       rect.setAttribute("width", r.width);
       rect.setAttribute("fill", "none");
 
       var line = svg.createElement("line");
-      line.setAttribute("x1", r.left - offset.left + container.left);
-      line.setAttribute("x2", r.left - offset.left + container.left + r.width);
+      line.setAttribute("x1", r.left - offset.left + constainerLeft);
+      line.setAttribute("x2", r.left - offset.left + constainerLeft + r.width);
       line.setAttribute("y1", r.top - offset.top + container.top + r.height + 1);
       line.setAttribute("y2", r.top - offset.top + container.top + r.height + 1);
 
       line.setAttribute("stroke-linecap", "square");
       styles.map((d) => line.setAttribute(d.key, d.value));
-
-      // line.setAttribute("stroke-width", 1);
-      // line.setAttribute("stroke-dasharray", "5, 5"); //TODO: match text color?
-      // line.setAttribute("stroke", "#8C8C8C");
-
-      // line.onclick = e => alert(1);
 
       docFrag.appendChild(rect);
 

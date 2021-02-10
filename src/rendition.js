@@ -96,6 +96,8 @@ class Rendition {
     }
 
     this.reportLocation = debounce(this.reportLocation.bind(this), 300);
+    this.showAllUnderLine = debounce(this.showAllUnderLine.bind(this), 300);
+    this.hideAllUnderLine = debounce(this.hideAllUnderLine.bind(this), 300);
 
     /**
      * @member {Themes} themes
@@ -1116,7 +1118,7 @@ class Rendition {
     const { start: { displayed: { page = 1 } = {} } = {} } = this.location;
     const { layout: { pageWidth = 1 } = {} } = this.manager;
 
-    console.log("rendition highlight", this);
+    console.log("rendition highlight", cfiRange, data, params);
 
     const d = Object.assign(data || {}, { offsetX: pageWidth * (page - 1) });
     return this.annotations.highlight(cfiRange, d, ...params);
@@ -1125,29 +1127,35 @@ class Rendition {
   underline(cfiRange, data = {}, ...params) {
     const { start: { displayed: { page = 1 } = {} } = {} } = this.location;
     const { layout: { pageWidth = 1 } = {} } = this.manager;
-    // console.log("rendition underline", this);
 
-    const d = Object.assign(data || {}, { offsetX: pageWidth * (page - 1) });
+    // const d = Object.assign(data || {}, { offsetX: pageWidth * (page - 1) });
+    const d = Object.assign(data || {}, { offsetX: 0 });
+    // console.log("rendition underline", cfiRange, d, params);
+
     return this.annotations.underline(cfiRange, d, ...params);
   }
 
   mark(cfiRange, data = {}, ...params) {
     const { start: { displayed: { page = 1 } = {} } = {} } = this.location;
     const { layout: { pageWidth = 1 } = {} } = this.manager;
-    console.log("rendition mark", this);
+    // console.log("rendition mark", this);
 
     const d = Object.assign(data || {}, { offsetX: pageWidth * (page - 1) });
     this.annotations.mark(cfiRange, d, ...params);
   }
 
   remove(...params) {
-    console.log("rendition remove", this);
-
+    // console.log("rendition remove", this);
     this.annotations.remove(...params);
   }
 
   hideAllUnderLine() {
+    this.doHideAllUnderLine();
+  }
+
+  doHideAllUnderLine() {
     if (!this.manager.views._views.length) return;
+    if (!this.location) return;
 
     const view = this.manager.views._views.find(
       (d) => d.section.href === this.location.start.href
@@ -1160,11 +1168,12 @@ class Rendition {
   }
 
   showAllUnderLine() {
-    const view = this.hideAllUnderLine();
+    const view = this.doHideAllUnderLine();
 
     if (!view) return;
     // 重现标记
-    setTimeout(() => this.annotations.inject(view), 3000);
+    // this.annotations.inject(view);
+    setTimeout(() => this.annotations.inject(view), 100);
   }
 }
 

@@ -28,7 +28,7 @@ export class Pane {
 
     this.marks.push(mark);
 
-    console.log('addMark', mark.data.epubcfi);
+    console.log("addMark", mark.data.epubcfi);
     mark.render();
     return mark;
   }
@@ -193,32 +193,53 @@ export class Underline extends Highlight {
       value: this.strokAttributes[k],
     }));
 
-
     // console.log("marks render", filtered);
+
+    const constainerLeft = container.left < 0 ? 0 : container.left;
+
+    this.element.dataset["left"] = 0;
 
     for (var i = 0, len = filtered.length; i < len; i++) {
       var r = filtered[i];
 
-      var rect = svg.createElement("rect");
-
-      // console.log('rect left offsetleft containerleft', r.left, offset.left, container.left, r, offset, container);
-
-      const constainerLeft = container.left < 0 ? 0: container.left;
+      // console.log(
+      //   "rect left offsetleft containerleft",
+      //   this.element,
+      //   r.left,
+      //   offset.left,
+      //   container.left,
+      //   r,
+      //   offset,
+      //   container
+      // );
       // const offsetLeft = container.left < 0 ? Math.abs(offset.left) : offset.left;
 
-      console.log('rect x, y', r.left - offset.left + constainerLeft, r.top - offset.top + container.top);
+      const left = r.left - offset.left + constainerLeft;
+      const top = r.top - offset.top + container.top;
 
-      rect.setAttribute("x", r.left - offset.left + constainerLeft);
-      rect.setAttribute("y", r.top - offset.top + container.top);
+      if (left > this.element.dataset["left"]) {
+        this.element.dataset["left"] = left;
+      }
+
+      console.log("rect x, y", left, top);
+
+      var rect = svg.createElement("rect");
+
+      rect.style.position = "absolute";
+      rect.style.left = `${left}px`;
+      rect.setAttribute("x", left);
+      rect.setAttribute("y", top);
       rect.setAttribute("height", r.height);
       rect.setAttribute("width", r.width);
       rect.setAttribute("fill", "none");
 
       var line = svg.createElement("line");
-      line.setAttribute("x1", r.left - offset.left + constainerLeft);
-      line.setAttribute("x2", r.left - offset.left + constainerLeft + r.width);
-      line.setAttribute("y1", r.top - offset.top + container.top + r.height + 1);
-      line.setAttribute("y2", r.top - offset.top + container.top + r.height + 1);
+      line.style.position = "absolute";
+      line.style.left = `${left}px`;
+      line.setAttribute("x1", left);
+      line.setAttribute("x2", left + r.width);
+      line.setAttribute("y1", top + r.height + 1);
+      line.setAttribute("y2", top + r.height + 1);
 
       line.setAttribute("stroke-linecap", "square");
       styles.map((d) => line.setAttribute(d.key, d.value));

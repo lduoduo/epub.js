@@ -249,6 +249,7 @@ class Rendition {
         queue: this.q,
         request: this.book.load.bind(this.book),
         settings: this.settings,
+        rendition: this
       });
     }
 
@@ -1128,9 +1129,9 @@ class Rendition {
     const { start: { displayed: { page = 1 } = {} } = {} } = this.location;
     const { layout: { pageWidth = 1 } = {} } = this.manager;
 
-    // const d = Object.assign(data || {}, { offsetX: pageWidth * (page - 1) });
-    const d = Object.assign(data || {}, { offsetX: 0 });
-    // console.log("rendition underline", cfiRange, d, params);
+    const d = Object.assign(data || {}, { offsetX: pageWidth * (page - 1) });
+    // const d = Object.assign(data || {}, { offsetX: 0 });
+    console.log("rendition underline", cfiRange, d, params);
 
     return this.annotations.underline(cfiRange, d, ...params);
   }

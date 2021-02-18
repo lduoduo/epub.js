@@ -1,4 +1,5 @@
 import EventEmitter from "event-emitter";
+import debounce from "lodash/debounce";
 import { isNumber, prefixed, borders, defaults } from "./utils/core";
 import EpubCFI from "./epubcfi";
 import Mapping from "./mapping";
@@ -48,6 +49,11 @@ class Contents {
     this.called = 0;
     this.active = true;
     this.listeners();
+
+    this.triggerSelectedEvent = debounce(
+      this.triggerSelectedEvent.bind(this),
+      200
+    );
   }
 
   /**
@@ -390,7 +396,7 @@ class Contents {
     // this.transitionListeners();
 
     if (typeof ResizeObserver === "undefined") {
-      console.log('resizeListeners ResizeObserver');
+      console.log("resizeListeners ResizeObserver");
       // this.resizeListeners();
       this.visibilityListeners();
     } else {
@@ -453,7 +459,7 @@ class Contents {
     // var width, height;
     // Test size again
     clearTimeout(this.expanding);
-    console.log('resizeListeners');
+    console.log("resizeListeners");
     requestAnimationFrame(this.resizeCheck.bind(this));
     this.expanding = setTimeout(this.resizeListeners.bind(this), 350);
   }
@@ -466,7 +472,7 @@ class Contents {
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible" && this.active === false) {
         this.active = true;
-        console.log('visibilityListeners resizeListeners');
+        console.log("visibilityListeners resizeListeners");
         this.resizeListeners();
       } else {
         this.active = false;
@@ -991,17 +997,22 @@ class Contents {
    * @private
    */
   onSelectionChange(e) {
-    // console.log('onSelectionChange', e);
-    if (this.selectionEndTimeout) {
-      clearTimeout(this.selectionEndTimeout);
+    console.log("onSelectionChange", this.selectEndTimeout, e);
+    if (this.selectEndTimeout) {
+      clearTimeout(this.selectEndTimeout);
     }
-    this.selectionEndTimeout = setTimeout(
-      function () {
-        var selection = this.window.getSelection();
-        this.triggerSelectedEvent(selection, e);
-      }.bind(this),
-      250
-    );
+
+    // 先跑一遍
+    if (this.selectEndTimeout === undefined) {
+      var selection = this.window.getSelection();
+      this.triggerSelectedEvent(selection, e);
+    }
+
+    this.selectEndTimeout = setTimeout(() => {
+      var selection = this.window.getSelection();
+      this.triggerSelectedEvent(selection, e);
+      this.selectEndTimeout = undefined;
+    }, 250);
   }
 
   /**
@@ -1010,6 +1021,8 @@ class Contents {
    */
   triggerSelectedEvent(selection, e) {
     var range, cfirange;
+
+    console.log("triggerSelectedEvent", selection.toString());
 
     if (selection && selection.rangeCount > 0) {
       range = selection.getRangeAt(0);

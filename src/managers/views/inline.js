@@ -17,7 +17,7 @@ import { EVENTS } from "../../utils/constants";
 import { Pane, Highlight, Underline } from "../pane/marks";
 
 class InlineView {
-  constructor(section, options) {
+  constructor(section, options, manager) {
     this.settings = extend(
       {
         ignoreClass: "",
@@ -33,6 +33,7 @@ class InlineView {
       options || {}
     );
 
+    this.manager = manager;
     this.id = "epubjs-view-" + uuid();
     this.section = section;
     this.index = section.index;
@@ -641,12 +642,6 @@ class InlineView {
     const attributes = styles;
 
     let range = this.contents.range(cfiRange);
-    let emitter = (e) => {
-      e.stopPropagation();
-      // e.preventDefault();
-      console.log("emitter", e);
-      this.emit(EVENTS.VIEWS.MARK_CLICKED, cfiRange, data);
-    };
 
     data["epubcfi"] = cfiRange;
 
@@ -657,6 +652,43 @@ class InlineView {
     let m = new Underline(range, className, data, attributes);
     let h = this.pane.addMark(m);
 
+    let emitter = (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+
+      // console.log("emitter", e.target, h, e, this);
+      const { target: { x: eX, width: eWidth } = {} } = e;
+
+      if (!eX || !eWidth) return;
+
+      const {
+        rendition: { location = {} } = {},
+        layout: { gap = 0, columnWidth = 0 } = {},
+      } = this.manager;
+      const { start: { displayed: { page = 1 } = {} } = {} } = location;
+
+      const w1 = page <= 1 ? 0 : (page - 1) * (columnWidth + gap) - gap;
+      const w2 = w1 + columnWidth;
+
+      console.log("left", eX.baseVal.value, eWidth.baseVal.value);
+      console.log("前一页", w1);
+      console.log("当前页", w2);
+
+      // 判断点击区域是否在当前有热词的页面
+      if (eX.baseVal.value > w1 && eX.baseVal.value < w2) {
+        console.log("当前热词");
+        this.emit(EVENTS.VIEWS.MARK_CLICKED, cfiRange, data);
+      }
+
+      if (
+        eX.baseVal.value + eWidth.baseVal.value > w1 &&
+        eX.baseVal.value + eWidth.baseVal.value < w2
+      ) {
+        console.log("当前热词");
+        this.emit(EVENTS.VIEWS.MARK_CLICKED, cfiRange, data);
+      }
+    };
+
     this.underlines[cfiRange] = {
       mark: h,
       element: h.element,
@@ -664,15 +696,16 @@ class InlineView {
     };
 
     h.element.setAttribute("ref", className);
-    // h.element.addEventListener("click", emitter);
+    h.element.addEventListener("click", emitter);
     h.element.addEventListener("touchstart", emitter);
 
-    // console.log("underline cfiRange", data, cfiRange);
-    if (cb) {
-      console.log("注册cfi点击事件 cfiRange", data, cfiRange, h.element);
-      // h.element.addEventListener("click", cb);
-      h.element.addEventListener("touchstart", cb);
-    }
+    console.log("underline cfiRange", h.element, data, cfiRange);
+
+    // if (cb) {
+    // console.log("注册cfi点击事件 cfiRange", data, cfiRange, h.element);
+    // h.element.addEventListener("click", cb);
+    // h.element.addEventListener("touchstart", cb);
+    // }
     return h;
   }
 

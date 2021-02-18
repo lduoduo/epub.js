@@ -18,6 +18,7 @@ class DefaultViewManager {
     this.request = options.request;
     this.renditionQueue = options.queue;
     this.q = new Queue(this);
+    this.rendition = options.rendition;
 
     this.settings = extend(this.settings || {}, {
       infinite: true,
@@ -250,7 +251,7 @@ class DefaultViewManager {
   }
 
   createView(section, forceRight) {
-    return new this.View(section, extend(this.viewSettings, { forceRight }));
+    return new this.View(section, extend(this.viewSettings, { forceRight }), this);
   }
 
   handleNextPrePaginated(forceRight, section, action) {

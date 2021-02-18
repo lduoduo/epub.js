@@ -15,7 +15,7 @@ import { EVENTS } from "../../utils/constants";
 import { Pane, Highlight, Underline } from "../pane/marks";
 
 class IframeView {
-  constructor(section, options) {
+  constructor(section, options, manager) {
     this.settings = extend(
       {
         ignoreClass: "",
@@ -31,6 +31,7 @@ class IframeView {
       options || {}
     );
 
+    this.manager = manager;
     this.id = "epubjs-view-" + uuid();
     this.section = section;
     this.index = section.index;

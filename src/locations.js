@@ -55,8 +55,8 @@ class Locations {
 
 		return this.q.run().then(function() {
 			this.total = this._locations.length - 1;
-      // console.log('locations total', this.total, this._locations);
 
+      // console.log('locations total', this.total, this._locations);
 			if (this._currentCfi) {
 				this.currentLocation = this._currentCfi;
 			}
@@ -355,9 +355,8 @@ class Locations {
 	 * @return {number}
 	 */
 	percentageFromLocation(loc) {
-    // console.log('percentageFromLocation', loc, this.total);
 		if (!loc || !this.total) {
-			return undefined;
+			return 0;
 		}
 
 		return (loc / this.total);

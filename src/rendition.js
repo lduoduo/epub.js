@@ -249,7 +249,7 @@ class Rendition {
         queue: this.q,
         request: this.book.load.bind(this.book),
         settings: this.settings,
-        rendition: this,
+        rendition: this
       });
     }
 
@@ -338,8 +338,9 @@ class Rendition {
    * @return {Promise}
    */
   _display(target) {
-    if (!this.book || !target) return;
-
+    if (!this.book) {
+      return;
+    }
     // var isCfiString = this.epubcfi.isCfiString(target);
     var displaying = new defer();
     var displayed = displaying.promise;
@@ -678,72 +679,80 @@ class Rendition {
    * @fires locationChanged
    */
   reportLocation() {
-    return this.q.enqueue(() => {
-      // reportedLocation
-      requestAnimationFrame(() => {
-        // reportedLocationAfterRAF
-        var location = this.manager.currentLocation();
-        if (location && location.then && typeof location.then === "function") {
-          location.then((result) => {
-            let located = this.located(result);
-            if (!located || !located.start || !located.end) return;
+    return this.q.enqueue(
+      function reportedLocation() {
+        requestAnimationFrame(
+          function reportedLocationAfterRAF() {
+            var location = this.manager.currentLocation();
+            if (
+              location &&
+              location.then &&
+              typeof location.then === "function"
+            ) {
+              location.then(
+                function (result) {
+                  let located = this.located(result);
 
-            this.location = located;
+                  if (!located || !located.start || !located.end) {
+                    return;
+                  }
 
-            this.emit(
-              EVENTS.RENDITION.LOCATION_CHANGED,
-              this.formatLocation(this.location)
-            );
+                  this.location = located;
 
-            this.emit(EVENTS.RENDITION.RELOCATED, this.location);
-          });
-        } else if (location) {
-          let located = this.located(location);
-          if (!located || !located.start || !located.end) return;
+                  this.emit(EVENTS.RENDITION.LOCATION_CHANGED, {
+                    index: this.location.start.index,
+                    href: this.location.start.href,
+                    start: this.location.start.cfi,
+                    startText: this.location.start.text,
+                    end: this.location.end.cfi,
+                    endText: this.location.end.text,
+                    percentage: this.location.start.percentage,
+                  });
 
-          this.location = located;
+                  this.emit(EVENTS.RENDITION.RELOCATED, this.location);
+                }.bind(this)
+              );
+            } else if (location) {
+              let located = this.located(location);
 
-          /**
-           * @event locationChanged
-           * @deprecated
-           * @type {object}
-           * @property {number} index
-           * @property {string} href
-           * @property {EpubCFI} start
-           * @property {EpubCFI} end
-           * @property {number} percentage
-           * @memberof Rendition
-           */
-          this.emit(
-            EVENTS.RENDITION.LOCATION_CHANGED,
-            this.formatLocation(this.location)
-          );
+              if (!located || !located.start || !located.end) {
+                return;
+              }
 
-          /**
-           * @event relocated
-           * @type {displayedLocation}
-           * @memberof Rendition
-           */
-          this.emit(EVENTS.RENDITION.RELOCATED, this.location);
-        }
-      });
-    });
-  }
+              this.location = located;
 
-  formatLocation(e) {
-    return {
-      index: e.start.index,
-      href: e.start.href,
-      start: e.start.cfi,
-      startText: e.start.text,
-      end: e.end.cfi,
-      endText: e.end.text,
-      percentage: e.start.percentage,
-    };
-  }
+              /**
+               * @event locationChanged
+               * @deprecated
+               * @type {object}
+               * @property {number} index
+               * @property {string} href
+               * @property {EpubCFI} start
+               * @property {EpubCFI} end
+               * @property {number} percentage
+               * @memberof Rendition
+               */
+              this.emit(EVENTS.RENDITION.LOCATION_CHANGED, {
+                index: this.location.start.index,
+                href: this.location.start.href,
+                start: this.location.start.cfi,
+                startText: this.location.start.text,
+                end: this.location.end.cfi,
+                endText: this.location.end.text,
+                percentage: this.location.start.percentage,
+              });
 
-  getCurrentLocation() {
-    return this.formatLocation(this.currentLocation());
+              /**
+               * @event relocated
+               * @type {displayedLocation}
+               * @memberof Rendition
+               */
+              this.emit(EVENTS.RENDITION.RELOCATED, this.location);
+            }
+          }.bind(this)
+        );
+      }.bind(this)
+    );
   }
 
   /**
@@ -753,10 +762,12 @@ class Rendition {
   currentLocation() {
     var location = this.manager.currentLocation();
     if (location && location.then && typeof location.then === "function") {
-      location.then((e) => {
-        let located = this.located(e);
-        return located;
-      });
+      location.then(
+        function (result) {
+          let located = this.located(result);
+          return located;
+        }.bind(this)
+      );
     } else if (location) {
       let located = this.located(location);
       return located;
@@ -805,6 +816,8 @@ class Rendition {
       start.mapping.start
     );
 
+    // console.log("翻页 locationStart", locationStart, start.mapping.start);
+
     let locationEnd = this.book.locations.locationFromCfi(end.mapping.end);
 
     if (locationStart != null) {
@@ -812,6 +825,12 @@ class Rendition {
       located.start.percentage = this.book.locations.percentageFromLocation(
         locationStart
       );
+
+      // console.log(
+      //   "翻页 locationStart percentage",
+      //   located.start.percentage,
+      //   located.start
+      // );
     }
 
     if (locationEnd != null) {
@@ -977,6 +996,12 @@ class Rendition {
     let horizontalPadding =
       parseFloat(computed.paddingLeft) + parseFloat(computed.paddingRight);
 
+    // console.log(
+    //   "contents.addStylesheetRules",
+    //   contents,
+    //   contents.content.className
+    // );
+
     const prefix = contents.content.className
       ? `.${contents.content.className}`
       : "";
@@ -1093,7 +1118,8 @@ class Rendition {
   highlight(cfiRange, data = {}, ...params) {
     const { start: { displayed: { page = 1 } = {} } = {} } = this.location;
     const { layout: { pageWidth = 1 } = {} } = this.manager;
-    // console.log("rendition highlight", cfiRange, data, params);
+
+    console.log("rendition highlight", cfiRange, data, params);
 
     const d = Object.assign(data || {}, { offsetX: pageWidth * (page - 1) });
     return this.annotations.highlight(cfiRange, d, ...params);
@@ -1104,7 +1130,8 @@ class Rendition {
     const { layout: { pageWidth = 1 } = {} } = this.manager;
 
     const d = Object.assign(data || {}, { offsetX: pageWidth * (page - 1) });
-    // console.log("rendition underline", cfiRange, d, params);
+    // const d = Object.assign(data || {}, { offsetX: 0 });
+    console.log("rendition underline", cfiRange, d, params);
 
     return this.annotations.underline(cfiRange, d, ...params);
   }
@@ -1112,12 +1139,14 @@ class Rendition {
   mark(cfiRange, data = {}, ...params) {
     const { start: { displayed: { page = 1 } = {} } = {} } = this.location;
     const { layout: { pageWidth = 1 } = {} } = this.manager;
+    // console.log("rendition mark", this);
 
     const d = Object.assign(data || {}, { offsetX: pageWidth * (page - 1) });
     this.annotations.mark(cfiRange, d, ...params);
   }
 
   remove(...params) {
+    // console.log("rendition remove", this);
     this.annotations.remove(...params);
   }
 

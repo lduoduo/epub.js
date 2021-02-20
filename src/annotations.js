@@ -39,7 +39,8 @@ class Annotations {
 
     if (annotations && annotations.includes(hash)) return Promise.resolve();
 
-    // console.log("add 标记", cfi, annotations);
+    console.log("add 标记", cfi, annotations);
+
     let annotation = new Annotation({
       type,
       cfiRange,
@@ -59,6 +60,11 @@ class Annotations {
     }
 
     let views = this.rendition.views();
+
+    // if (data.href) {
+    //   const view = views._views.find(d => d.section.href === data.href);
+    //   return annotation;
+    // }
 
     views.forEach((view) => {
       if (annotation.sectionIndex === view.index) {

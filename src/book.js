@@ -572,7 +572,7 @@ class Book {
 	 * @return {Rendition}
 	 */
 	renderTo(element, options) {
-    // console.log('renderTo', element, options);
+    console.log('renderTo', element, options);
 
 		this.rendition = new Rendition(this, options);
 		this.rendition.attachTo(element);

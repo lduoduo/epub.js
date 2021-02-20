@@ -699,13 +699,13 @@ class InlineView {
     h.element.addEventListener("click", emitter);
     h.element.addEventListener("touchstart", emitter);
 
-    console.log("underline cfiRange", h.element, data, cfiRange);
+    // console.log("underline cfiRange", h.element, data, cfiRange);
 
-    // if (cb) {
-    // console.log("注册cfi点击事件 cfiRange", data, cfiRange, h.element);
-    // h.element.addEventListener("click", cb);
-    // h.element.addEventListener("touchstart", cb);
-    // }
+    if (cb) {
+      console.log("注册cfi点击事件 cfiRange", data, cfiRange, h.element);
+      h.element.addEventListener("click", cb);
+      h.element.addEventListener("touchstart", cb);
+    }
     return h;
   }
 

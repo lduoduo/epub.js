@@ -28,7 +28,7 @@ export class Pane {
 
     this.marks.push(mark);
 
-    console.log("addMark", mark.data.epubcfi);
+    // console.log("addMark", mark.data.epubcfi);
     mark.render();
     return mark;
   }
@@ -88,22 +88,13 @@ export class Mark {
     return rects;
   }
 
-  filteredRanges() {
+  filteredRanges(type = "") {
+    if (!this.range) return [];
     var rects = Array.from(this.range.getClientRects());
 
-    // De-duplicate the boxes
-    return rects.filter((box) => {
-      for (var i = 0; i < rects.length; i++) {
-        if (rects[i] === box) {
-          return true;
-        }
-        let contained = contains(rects[i], box);
-        if (contained) {
-          return false;
-        }
-      }
-      return true;
-    });
+    if (!type) return rects;
+
+    return rects.filter((d) => filterRects(d, rects, type));
   }
 }
 
@@ -154,9 +145,11 @@ export class Highlight extends Mark {
     }
 
     var docFrag = this.element.ownerDocument.createDocumentFragment();
-    var filtered = this.filteredRanges();
+    var filtered = this.filteredRanges("parent");
     var offset = this.element.getBoundingClientRect();
     var container = this.container.getBoundingClientRect();
+
+    console.log("Highlight render filtered", filtered);
 
     for (var i = 0, len = filtered.length; i < len; i++) {
       var r = filtered[i];
@@ -184,7 +177,7 @@ export class Underline extends Highlight {
     }
 
     var docFrag = this.element.ownerDocument.createDocumentFragment();
-    var filtered = this.filteredRanges();
+    var filtered = this.filteredRanges("child");
     var offset = this.element.getBoundingClientRect();
     var container = this.container.getBoundingClientRect();
 
@@ -193,40 +186,20 @@ export class Underline extends Highlight {
       value: this.strokAttributes[k],
     }));
 
-    // console.log("marks render", filtered);
-
     const constainerLeft = container.left < 0 ? 0 : container.left;
-
-    this.element.dataset["left"] = 0;
 
     for (var i = 0, len = filtered.length; i < len; i++) {
       var r = filtered[i];
 
-      // console.log(
-      //   "rect left offsetleft containerleft",
-      //   this.element,
-      //   r.left,
-      //   offset.left,
-      //   container.left,
-      //   r,
-      //   offset,
-      //   container
-      // );
-      // const offsetLeft = container.left < 0 ? Math.abs(offset.left) : offset.left;
-
       const left = r.left - offset.left + constainerLeft;
       const top = r.top - offset.top + container.top;
 
-      if (left > this.element.dataset["left"]) {
-        this.element.dataset["left"] = left;
-      }
-
-      console.log("rect x, y", left, top);
+      // console.log("rect x, y", left, top);
 
       var rect = svg.createElement("rect");
 
-      rect.style.position = "absolute";
-      rect.style.left = `${left}px`;
+      // rect.style.position = "absolute";
+      // rect.style.left = `${left}px`;
       rect.setAttribute("x", left);
       rect.setAttribute("y", top);
       rect.setAttribute("height", r.height);
@@ -234,8 +207,8 @@ export class Underline extends Highlight {
       rect.setAttribute("fill", "none");
 
       var line = svg.createElement("line");
-      line.style.position = "absolute";
-      line.style.left = `${left}px`;
+      // line.style.position = "absolute";
+      // line.style.left = `${left}px`;
       line.setAttribute("x1", left);
       line.setAttribute("x2", left + r.width);
       line.setAttribute("y1", top + r.height + 1);
@@ -272,11 +245,24 @@ function setCoords(el, coords) {
   el.style.setProperty("width", `${coords.width}px`, "important");
 }
 
-function contains(rect1, rect2) {
+function filterRects(target, list, type) {
+  // De-duplicate the boxes, 这里原始逻辑把被大块包裹的小块去掉了，对于下划线来说，我们需要做相反的逻辑，去掉大块，保留小块
+  // 以大的为主，过滤掉小的
+  if (type === "parent") {
+    const d = list.find((d) => d !== target && contains(d, target));
+    return !d;
+  }
+
+  // 以小的为主，过滤掉大的
+  const d = list.find((d) => d !== target && contains(target, d));
+  return !d;
+}
+
+function contains(parent, child) {
   return (
-    rect2.right <= rect1.right &&
-    rect2.left >= rect1.left &&
-    rect2.top >= rect1.top &&
-    rect2.bottom <= rect1.bottom
+    child.right <= parent.right &&
+    child.left >= parent.left &&
+    child.top >= parent.top &&
+    child.bottom <= parent.bottom
   );
 }

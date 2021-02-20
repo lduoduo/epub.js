@@ -997,7 +997,7 @@ class Contents {
    * @private
    */
   onSelectionChange(e) {
-    console.log("onSelectionChange", this.selectEndTimeout, e);
+    console.log("onSelectionChange", this.selectEndTimeout);
     if (this.selectEndTimeout) {
       clearTimeout(this.selectEndTimeout);
     }
@@ -1022,17 +1022,17 @@ class Contents {
   triggerSelectedEvent(selection, e) {
     var range, cfirange;
 
-    console.log("triggerSelectedEvent", selection.toString());
+    // console.log("triggerSelectedEvent", selection.toString());
 
     if (selection && selection.rangeCount > 0) {
       range = selection.getRangeAt(0);
       if (!range.collapsed) {
         // cfirange = this.section.cfiFromRange(range);
-        console.log("triggerSelectedEvent this.cfiBase", this.cfiBase, e);
+        console.log("triggerSelectedEvent this.cfiBase", this.cfiBase);
 
         cfirange = new EpubCFI(range, this.cfiBase).toString();
 
-        console.log("triggerSelectedEvent cfirange", cfirange, e);
+        console.log("triggerSelectedEvent cfirange", cfirange);
 
         this.emit(EVENTS.CONTENTS.SELECTED, cfirange, e);
         this.emit(EVENTS.CONTENTS.SELECTED_RANGE, range, e);

@@ -182,11 +182,11 @@ class EpubCFI {
       steps.shift(); // Ignore the first slash
     }
 
-    component.steps = steps.map(
-      function (step) {
+    component.steps = steps
+      .filter((d) => !!d)
+      .map((step) => {
         return this.parseStep(step);
-      }.bind(this)
-    );
+      });
 
     return component;
   }
@@ -498,12 +498,16 @@ class EpubCFI {
     if (offset != null && offset >= 0) {
       segment.terminal.offset = offset;
 
-      // Make sure we are getting to a textNode if there is an offset
-      if (segment.steps[segment.steps.length - 1].type != "text") {
-        segment.steps.push({
-          type: "text",
-          index: 0,
-        });
+      try {
+        // Make sure we are getting to a textNode if there is an offset
+        if (segment.steps[segment.steps.length - 1].type != "text") {
+          segment.steps.push({
+            type: "text",
+            index: 0,
+          });
+        }
+      } catch (e) {
+        console.warn("epubcfi path error!", e);
       }
     }
 
@@ -794,7 +798,8 @@ class EpubCFI {
   stepsToXpath(steps) {
     var xpath = [".", "*"];
 
-    steps.forEach(function (step) {
+    steps.forEach((step) => {
+      if (!step) return;
       var position = step.index + 1;
 
       if (step.id) {
@@ -891,7 +896,9 @@ class EpubCFI {
   }
 
   findNode(steps, _doc, ignoreClass) {
-    // var doc = _doc || document;
+    const arr = steps.filter((d) => !!d);
+    if (arr.length === 0) return null;
+
     var container;
     var xpath;
 
@@ -899,7 +906,7 @@ class EpubCFI {
     const div = _doc;
 
     if (!ignoreClass && typeof doc.evaluate != "undefined") {
-      xpath = this.stepsToXpath(steps);
+      xpath = this.stepsToXpath(arr);
       container = doc.evaluate(
         xpath,
         div,
@@ -1028,14 +1035,14 @@ class EpubCFI {
 
     if (startContainer) {
       try {
-        console.log('#####startContainer', startContainer.nodeValue.slice(0, 10), start, cfi);
+        console.log("##startContainer", startContainer.nodeValue.slice(0, 10));
         if (start.terminal.offset != null) {
           range.setStart(startContainer, start.terminal.offset);
         } else {
           range.setStart(startContainer, 0);
         }
       } catch (e) {
-        console.error('#####startContainer error', startContainer, start, cfi, e);
+        console.error("##startContainer error", startContainer, start, cfi, e);
         missed = this.fixMiss(
           startSteps,
           start.terminal.offset,
@@ -1046,20 +1053,19 @@ class EpubCFI {
       }
     } else {
       console.error("No startContainer found for", this.toString());
-      // No start found
       return null;
     }
 
     if (endContainer) {
       try {
-        // console.log('#####endContainer', endContainer, end, cfi);
+        // console.log('##endContainer', endContainer, end, cfi);
         if (end.terminal.offset != null) {
           range.setEnd(endContainer, end.terminal.offset);
         } else {
           range.setEnd(endContainer, 0);
         }
       } catch (e) {
-        console.error('#####endContainer error', endContainer, end, cfi, e);
+        console.error("##endContainer error", endContainer, end, cfi, e);
         try {
           missed = this.fixMiss(
             endSteps,
